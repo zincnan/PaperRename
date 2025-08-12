@@ -1,25 +1,22 @@
-# Smart Paper Filename Transform
+# 📄 PaperRename
 
-一个极简的浏览器划词工具（Chrome 扩展），选中英文论文题目后，通过右键菜单将其转换为适合作为文件名的安全字符串，并自动复制到剪贴板。  
-特别适合为论文、文档、资料生成整洁的文件名。
+**PaperRename** 是一个用于重命名学术论文 PDF 文件的工具，它能够：
 
-## 功能特点
-- **一键转换**：右键选中文本 → 自动替换特殊字符为安全字符
-- **自动复制**：转换结果直接进入剪贴板，无需手动复制
-- **本地处理**：所有逻辑在浏览器端完成，不上传任何数据
-- **轻量无依赖**：代码简单，易于二次开发
+- 自动提取 PDF 中的 DOI（支持 ACM、IEEE、arXiv 等）
+- 查询 CrossRef 获取论文标题、作者、年份、会议/期刊
+- 生成统一格式的安全文件名（避免非法字符）
+- 自动重命名 PDF 文件为建议格式（例如：`Hilton_2025_FSE_Visualising_Developer_Interactions_in_Code_Reviews.pdf`）
 
-## 转换规则
-- 空格 → `_`
-- `:` → `=`
-- `/`、`\\`、`|` → `-`
-- `*`、`?`、`<`、`>` → 删除
-- `"` → `'`
-- 连续 `_` 压缩为单个 `_`
-- 连续 `-` 压缩为单个 `-`
-- 去除文件名首尾的 `_`、`-`、`=`
+---
 
-## 安装
-1. 下载或克隆本仓库
-   ```bash
-   git clone https://github.com/zincnan/Smart-Paper-Filename-Transform.git
+## 🚀 安装与使用
+
+你需要安装以下 Python 依赖：
+
+```bash
+pip install PyPDF2 requests
+```
+使用
+```
+python thisshell.py filepath
+```
