@@ -177,7 +177,8 @@ def generate_filename(metadata: dict) -> str:
             container = short
             break
     else:
-        map_manager.insert_entry(container,"Unkonwn")
+        # 暂时不更新配置文件，直接用会议全名
+        # map_manager.insert_entry(container,"Unkonwn")
         container = smart_filename_transform(container)
         
 
