@@ -7,6 +7,8 @@
 - 生成统一格式的文件名（避免非法字符）
 - 自动重命名PDF的格式是 【年份】+【会议名】+【论文题目】（例如：`[2025]+[FSE]--Visualising_Developer_Interactions_in_Code_Reviews.pdf`）
 
+#### 如图，下载论文时文件名不清楚或无意义的文件，都被重新直观地命名。
+![alt text](image.png)
 ---
 
 ## ⚙️注意
