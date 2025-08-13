@@ -291,6 +291,7 @@ def main():
         return
 
     input_paths = sys.argv[1:]
+    # print("input_paths:", input_paths)
     pdf_files = collect_pdf_files(input_paths)
 
     if not pdf_files:
@@ -309,11 +310,11 @@ def main():
 
         try:
             doi, guess_title = extract_best_doi_from_first_page(pdf_path)
-            print(f"可能的{guess_title}")
+            print(f"可能的解析标题:{guess_title}")
             if not doi:
                 # print("[ERROR]  DOI Analyze Failed.")
                 guess_title = smart_filename_transform(guess_title)
-                filename = f"[year]+[Conference]--{guess_title}"
+                filename = f"[YEAE]+[CORT]--{guess_title}"
                 new_path = os.path.join(os.path.dirname(pdf_path), filename + ".pdf")
                 if os.path.exists(new_path):
                     print(f"[WARN] Target file already exists: {new_path}")
