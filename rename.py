@@ -313,7 +313,7 @@ def main():
             if not doi:
                 # print("[ERROR]  DOI Analyze Failed.")
                 guess_title = smart_filename_transform(guess_title)
-                filename = f"[year]-[Conference]++{guess_title}"
+                filename = f"[year]+[Conference]--{guess_title}"
                 new_path = os.path.join(os.path.dirname(pdf_path), filename + ".pdf")
                 if os.path.exists(new_path):
                     print(f"[WARN] Target file already exists: {new_path}")
