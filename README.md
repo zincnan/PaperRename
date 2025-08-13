@@ -3,20 +3,38 @@
 **PaperRename** 是一个用于重命名学术论文 PDF 文件的工具，它能够：
 
 - 自动提取 PDF 中的 DOI（支持 ACM、IEEE、arXiv 等）
-- 查询 CrossRef 获取论文标题、作者、年份、会议/期刊
-- 生成统一格式的安全文件名（避免非法字符）
-- 自动重命名 PDF 文件为建议格式（例如：`Hilton_2025_FSE_Visualising_Developer_Interactions_in_Code_Reviews.pdf`）
+- 查询 DOI 获取论文标题、作者、年份、会议/期刊
+- 生成统一格式的文件名（避免非法字符）
+- 自动重命名PDF的格式是 【年份】+【会议名】+【论文题目】（例如：`[2025]+[FSE]--Visualising_Developer_Interactions_in_Code_Reviews.pdf`）
 
 ---
 
+## ⚙️注意
+1. acronym_map.json用于配置会议长名和简称，当扫描的文档所属的会议不在配置中时，会自动插入未知简称的会议全名，自行修改该行配置，以便后续支持更多会议的简称判断。
+2. 自行修改会议全名时，注意删除 45th, 33rd等前缀，只保留 International Conferrence以后的部分，否则可能匹配不到。可以保留ACM或IEEE等前缀，但个别会议要另行配置
+3. doi.org网络访问不稳定，失败项目重新执行
+
 ## 🚀 安装与使用
 
-你需要安装以下 Python 依赖：
+1. 创建 python 虚拟环境
+```bash
+# 创建虚拟环境
+python3 -m venv .venv
+# 激活环境
+source .venv/bin/activate
+```
+
+2. 安装以下 Python 依赖：
 
 ```bash
-pip install PyPDF2 requests
+# 安装依赖
+pip install -r requirements.txt
 ```
-使用
+3. 使用
 ```
-python thisshell.py filepath
+# 重命名该文件夹内的全部pdf
+python rename [路径-文件夹名]
+# 重命名指定的pdf
+python rename [路径-文件名]
 ```
+

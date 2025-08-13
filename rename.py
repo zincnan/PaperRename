@@ -170,7 +170,7 @@ def generate_filename(metadata: dict) -> str:
     year = _get_year(metadata) or "unknown"
 
     container = _get_container(metadata) or "unknown"
-    print(type(ACRONYM_MAP), ACRONYM_MAP)
+    # print(type(ACRONYM_MAP), ACRONYM_MAP)
     for full, short in ACRONYM_MAP.items():
         # if container.lower().startswith(full.lower()):
         if full.lower() in container.lower():

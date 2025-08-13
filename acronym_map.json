@@ -1,9 +1,9 @@
 {
-    "ACM International Conference on the Foundations of Software Engineering": "FSE",
-    "ACM SIGPLAN Conference on Programming Language Design and Implementation": "PLDI",
-    "Proceedings of the International Conference on Machine Learning": "ICML",
+    "International Conference on the Foundations of Software Engineering": "FSE",
+    "SIGPLAN Conference on Programming Language Design and Implementation": "PLDI",
+    "International Conference on Machine Learning": "ICML",
     "AAAI Conference on Artificial Intelligence": "AAAI",
-    "IEEE Conference on Computer Vision and Pattern Recognition": "CVPR",
+    "Conference on Computer Vision and Pattern Recognition": "CVPR",
     "Neural Information Processing Systems": "NeurIPS",
     "arXiv": "arXiv",
     "ACM Symposium on Operating Systems Principles": "SOSP",
