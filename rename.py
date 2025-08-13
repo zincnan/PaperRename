@@ -199,13 +199,52 @@ def collect_pdf_files(paths: List[str]) -> List[str]:
             print(f"[WARN] Skipped unsupported path: {path}")
     return pdf_files
 
+def extract_paper_title(text: str) -> Optional[str]:
+    # 按行拆分，并去除首尾空白
+    lines = [l.strip() for l in text.splitlines() if l.strip()]
+
+    # 过滤掉明显不是标题的行（页眉页脚、DOI、会议信息等）
+    ignore_patterns = [
+        r"^doi\s*:?", r"^DOI\s", r"proceedings of", r"arxiv preprint",
+        r"copyright", r"www\.", r"^\d+$", r"^\d+\s*©", r"license"
+    ]
+    filtered = []
+    for line in lines:
+        if any(re.search(pat, line, flags=re.I) for pat in ignore_patterns):
+            continue
+        filtered.append(line)
+
+    if not filtered:
+        return None
+
+    # 候选规则：长度大于 5，少于 300，且不是全大写
+    candidates = []
+    for line in filtered:
+        if 5 < len(line) < 300 and not (line.isupper() and len(line) > 10):
+            candidates.append(line)
+
+    if not candidates:
+        return None
+
+    # 有些标题会被分成多行，比如第一行很长，下一行首字母大写
+    # 尝试合并前两行（如果第二行看起来也是标题的一部分）
+    title = candidates[0]
+    if len(candidates) > 1 and (
+        candidates[1][0].isupper() or candidates[1][0].isdigit()
+    ) and not candidates[1].endswith('.'):
+        combined = title + " " + candidates[1]
+        if len(combined) < 300:
+            title = combined
+
+    # 去除多余空格
+    return re.sub(r"\s+", " ", title).strip()
 
 def extract_best_doi_from_first_page(pdf_path: str) -> Optional[str]:
     try:
         reader = PdfReader(pdf_path)
     except Exception as e:
         print(f"[ERROR] Failed to open PDF: {e}")
-        return None
+        return None, None
 
     try:
         if getattr(reader, "is_encrypted", False):
@@ -219,13 +258,15 @@ def extract_best_doi_from_first_page(pdf_path: str) -> Optional[str]:
     try:
         if not reader.pages:
             print("[WARN] PDF has no pages.")
-            return None
+            return None, None
         text = reader.pages[0].extract_text() or ""
     except Exception as e:
         print(f"[ERROR] Failed to extract text from page 1: {e}")
-        return None
+        return None, None
 
     candidates = extract_all_dois_from_text(text)
+    title = extract_paper_title(text)
+    # print(f"可能的题目{title}")
     print(f"Found DOI candidates on first page: {candidates}")
 
     preferred_types = {"journal-article", "proceedings-article", "posted-content", "report"}
@@ -235,13 +276,13 @@ def extract_best_doi_from_first_page(pdf_path: str) -> Optional[str]:
         if not meta:
             continue
         if meta.get("author") and (meta.get("type") in preferred_types):
-            return doi
+            return doi, title
 
     for doi in candidates:
         if fetch_doi_metadata(doi):
-            return doi
+            return doi, title
 
-    return None
+    return None,title
 
 
 def main():
@@ -267,9 +308,18 @@ def main():
         print(f"📄 Processing: {pdf_path}")
 
         try:
-            doi = extract_best_doi_from_first_page(pdf_path)
+            doi, guess_title = extract_best_doi_from_first_page(pdf_path)
+            print(f"可能的{guess_title}")
             if not doi:
-                print("[ERROR] No valid DOI found on the first page.")
+                # print("[ERROR]  DOI Analyze Failed.")
+                guess_title = smart_filename_transform(guess_title)
+                filename = f"[year]-[Conference]++{guess_title}"
+                new_path = os.path.join(os.path.dirname(pdf_path), filename + ".pdf")
+                if os.path.exists(new_path):
+                    print(f"[WARN] Target file already exists: {new_path}")
+                    continue
+                os.rename(pdf_path, new_path)
+                print(f"✅ File renamed to: {new_path}")
                 continue
 
             metadata = fetch_doi_metadata(doi)
