@@ -183,7 +183,8 @@ def generate_filename(metadata: dict) -> str:
         
 
     title_safe = smart_filename_transform(title or _get_title(metadata) or "untitled")
-    return f"[{year}]+[{container}]--{title_safe}"
+    filename =  f"[{year}]【{title_safe}】---[{container}]"
+    return filename
 
 
 def collect_pdf_files(paths: List[str]) -> List[str]:
@@ -315,7 +316,7 @@ def main():
             if not doi:
                 # print("[ERROR]  DOI Analyze Failed.")
                 guess_title = smart_filename_transform(guess_title)
-                filename = f"[YEAE]+[CORT]--{guess_title}"
+                filename = f"[YEAE]【{guess_title}】---[CORT]-"
                 new_path = os.path.join(os.path.dirname(pdf_path), filename + ".pdf")
                 if os.path.exists(new_path):
                     print(f"[WARN] Target file already exists: {new_path}")

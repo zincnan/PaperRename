@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-MAP_FILE = Path("/home/zinc/workstation/mytools/acronym_map.json")
+MAP_FILE = Path("/home/zinc/workstation/mytools/paperename/acronym_map.json")
 
 def load_map():
     """读取 JSON 文件并返回 dict"""
