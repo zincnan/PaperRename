@@ -3,7 +3,7 @@ import sys
 import re
 import unicodedata
 from typing import Optional, List
-
+from pathlib import Path
 import requests
 from PyPDF2 import PdfReader
 
@@ -187,18 +187,47 @@ def generate_filename(metadata: dict) -> str:
     return filename
 
 
+# def collect_pdf_files(paths: List[str]) -> List[str]:
+#     pdf_files = []
+#     for path in paths:
+#         if os.path.isdir(path):
+#             for root, _, files in os.walk(path):
+#                 for file in files:
+#                     if file.lower().endswith(".pdf"):
+#                         pdf_files.append(os.path.join(root, file))
+#         elif os.path.isfile(path) and path.lower().endswith(".pdf"):
+#             pdf_files.append(path)
+#         else:
+#             print(f"[WARN] Skipped unsupported path: {path}")
+#     return pdf_files
+
 def collect_pdf_files(paths: List[str]) -> List[str]:
     pdf_files = []
-    for path in paths:
-        if os.path.isdir(path):
-            for root, _, files in os.walk(path):
-                for file in files:
-                    if file.lower().endswith(".pdf"):
-                        pdf_files.append(os.path.join(root, file))
-        elif os.path.isfile(path) and path.lower().endswith(".pdf"):
-            pdf_files.append(path)
-        else:
-            print(f"[WARN] Skipped unsupported path: {path}")
+    seen = set()  # for de-dup
+
+    for raw in paths:
+        if not isinstance(raw, str) or not raw.strip():
+            print(f"[WARN] Skipped unsupported path: {raw!r}")
+            continue
+
+        p = Path(raw).resolve()  # 规范化，'.' -> absolute current dir
+        try:
+            if p.is_dir():
+                for f in p.rglob("*.pdf"):
+                    fp = str(f.resolve())
+                    if fp not in seen:
+                        pdf_files.append(fp)
+                        seen.add(fp)
+            elif p.is_file() and p.suffix.lower() == ".pdf":
+                fp = str(p)
+                if fp not in seen:
+                    pdf_files.append(fp)
+                    seen.add(fp)
+            else:
+                print(f"[WARN] Skipped unsupported path: {raw}")
+        except OSError as e:
+            print(f"[ERROR] Unable to access path {raw}: {e}")
+
     return pdf_files
 
 def extract_paper_title(text: str) -> Optional[str]:
