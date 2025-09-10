@@ -306,6 +306,12 @@ def main():
     for pdf_path in pdf_files:
         if not os.path.isfile(pdf_path):
             continue
+        
+        filename = os.path.basename(pdf_path)
+        if filename.startswith('['):
+            # print("=" * 80)
+            # print(f"Skipped (filename starts with '['): {pdf_path}")
+            continue
 
         print("=" * 80)
         print(f"📄 Processing: {pdf_path}")
