@@ -201,7 +201,44 @@ def generate_filename(metadata: dict) -> str:
 #             print(f"[WARN] Skipped unsupported path: {path}")
 #     return pdf_files
 
+# def collect_pdf_files(paths: List[str]) -> List[str]:
+#     pdf_files = []
+#     seen = set()  # for de-dup
+
+#     for raw in paths:
+#         if not isinstance(raw, str) or not raw.strip():
+#             print(f"[WARN] Skipped unsupported path: {raw!r}")
+#             continue
+
+#         p = Path(raw).resolve()  # 规范化，'.' -> absolute current dir
+#         try:
+#             if p.is_dir():
+#                 for f in p.rglob("*.pdf"):
+#                     fp = str(f.resolve())
+#                     if fp not in seen:
+#                         pdf_files.append(fp)
+#                         seen.add(fp)
+#             elif p.is_file() and p.suffix.lower() == ".pdf":
+#                 fp = str(p)
+#                 if fp not in seen:
+#                     pdf_files.append(fp)
+#                     seen.add(fp)
+#             else:
+#                 print(f"[WARN] Skipped unsupported path: {raw}")
+#         except OSError as e:
+#             print(f"[ERROR] Unable to access path {raw}: {e}")
+
+#     return pdf_files
 def collect_pdf_files(paths: List[str]) -> List[str]:
+    """
+    Collect PDF files from given paths.
+
+    Special rule:
+      - If the caller passed '.' (or './', './.'), then while scanning that entry
+        we will skip files whose basenames start with '[' or '【'.
+      - If caller passed a specific filename or a specific directory path (not '.'),
+        do NOT skip bracket-starting files.
+    """
     pdf_files = []
     seen = set()  # for de-dup
 
@@ -210,15 +247,28 @@ def collect_pdf_files(paths: List[str]) -> List[str]:
             print(f"[WARN] Skipped unsupported path: {raw!r}")
             continue
 
-        p = Path(raw).resolve()  # 规范化，'.' -> absolute current dir
+        # Determine whether this input was literally '.' (or './', './.')
+        norm_input = raw.strip()
+        skip_bracket = norm_input in (".", "./", "./.")
+
+        p = Path(raw).resolve()  # normalize to absolute path
         try:
             if p.is_dir():
                 for f in p.rglob("*.pdf"):
+                    # If input was '.' we skip filenames starting with '[' or '【'
+                    if skip_bracket:
+                        name = f.name.lstrip()  # ignore leading whitespace
+                        if name.startswith('[') or name.startswith('【'):
+                            # skip this file only when scanning '.' input
+                            continue
+
                     fp = str(f.resolve())
                     if fp not in seen:
                         pdf_files.append(fp)
                         seen.add(fp)
+
             elif p.is_file() and p.suffix.lower() == ".pdf":
+                # If user explicitly passed a file path, do NOT skip it even if it starts with '['.
                 fp = str(p)
                 if fp not in seen:
                     pdf_files.append(fp)
@@ -336,11 +386,11 @@ def main():
         if not os.path.isfile(pdf_path):
             continue
         
-        filename = os.path.basename(pdf_path)
-        if filename.startswith('['):
-            # print("=" * 80)
-            # print(f"Skipped (filename starts with '['): {pdf_path}")
-            continue
+        # filename = os.path.basename(pdf_path)
+        # if filename.startswith('['):
+        #     # print("=" * 80)
+        #     # print(f"Skipped (filename starts with '['): {pdf_path}")
+        #     continue
 
         print("=" * 80)
         print(f"📄 Processing: {pdf_path}")
